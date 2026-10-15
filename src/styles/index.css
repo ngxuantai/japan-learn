@@ -1,0 +1,70 @@
+@import './fonts.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Bảng màu sáng: giấy washi + mực sumi. Giá trị là kênh RGB để dùng được với opacity của Tailwind. */
+  :root {
+    --paper: 250 247 242; /* #FAF7F2 */
+    --surface: 255 253 249;
+    --ink: 31 31 31; /* #1F1F1F */
+    --muted: 94 87 77; /* #5E574D — 6.6:1 trên nền giấy */
+    --line: 226 219 207;
+    --accent: 200 16 46; /* #C8102E */
+    --indigo: 38 70 83; /* #264653 */
+    --matcha: 61 110 74;
+    color-scheme: light;
+  }
+
+  /* Bảng màu tối: giấy than, mực trắng ngà; màu nhấn sáng hơn để đạt tương phản AA. */
+  .dark {
+    --paper: 23 21 18;
+    --surface: 34 31 27;
+    --ink: 236 230 219;
+    --muted: 168 159 145;
+    --line: 62 57 50;
+    --accent: 255 107 125;
+    --indigo: 127 179 196;
+    --matcha: 140 193 154;
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply min-h-screen bg-paper font-sans text-ink antialiased;
+    /* Vân giấy rất nhẹ */
+    background-image: radial-gradient(rgb(var(--ink) / 0.025) 1px, transparent 1px);
+    background-size: 4px 4px;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent ring-offset-2 ring-offset-paper;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm font-medium text-ink transition hover:border-ink/30 hover:bg-ink/[0.03] active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-40;
+  }
+  .btn-primary {
+    @apply btn border-transparent bg-accent text-white hover:border-transparent hover:bg-accent/90 dark:text-paper;
+  }
+  .btn-icon {
+    @apply btn h-9 w-9 p-0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
