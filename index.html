@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="Học bảng chữ cái Hiragana và Katakana cho người Việt: phát âm, thứ tự nét và tập viết."
+    />
+    <meta name="theme-color" content="#FAF7F2" />
+    <title>Bảng chữ cái tiếng Nhật</title>
+    <script>
+      // Áp theme trước khi React mount để tránh nháy màu (chỉ đọc cài đặt hệ thống, không dùng storage).
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.classList.add('dark')
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/app/main.tsx"></script>
+  </body>
+</html>
