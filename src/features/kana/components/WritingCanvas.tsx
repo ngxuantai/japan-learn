@@ -30,14 +30,34 @@ const PENS: readonly { id: PenId; label: string; width: number }[] = [
 const readInkColor = () =>
   `rgb(${getComputedStyle(document.documentElement).getPropertyValue('--ink').trim() || '31 31 31'})`
 
+interface WritingCanvasProps {
+  text: string
+  /**
+   * 'practice': tập viết, có chế độ tô theo và thẻ điểm chi tiết.
+   * 'quiz': ôn tập, luôn viết tự do (ẩn chữ mẫu), kết quả trả ra qua `onScore`.
+   */
+  variant?: 'practice' | 'quiz'
+  /** Chỉ dùng với 'quiz': khoá khung viết và hiện chữ mẫu mờ để so sánh. */
+  locked?: boolean
+  onScore?: (result: ScoreResult | null) => void
+}
+
 /**
  * Khung tập viết. Lớp dưới là SVG (lưới + chữ mẫu mờ dựng từ chính dữ liệu stroke),
  * lớp trên là <canvas> nhận Pointer Events (chuột, cảm ứng, bút).
  * Nét được lưu theo toạ độ viewBox nên đổi kích thước khung không làm lệch nét đã viết.
  */
-export function WritingCanvas({ text }: { text: string }) {
+export function WritingCanvas({
+  text,
+  variant = 'practice',
+  locked = false,
+  onScore,
+}: WritingCanvasProps) {
   const glyph = buildGlyph(text)
-  const [mode, setMode] = useState<Mode>('trace')
+  const isQuiz = variant === 'quiz'
+  const [modeState, setMode] = useState<Mode>('trace')
+  const mode: Mode = isQuiz ? 'free' : modeState
+  const showModel = mode === 'trace' || (isQuiz && locked)
   const [pen, setPen] = useState<PenId>('medium')
   const [strokes, setStrokes] = useState<InkStroke[]>([])
   const [result, setResult] = useState<ScoreResult | null>(null)
@@ -114,7 +134,7 @@ export function WritingCanvas({ text }: { text: string }) {
   })
 
   const onPointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
-    if (pointerIdRef.current !== null) return // bỏ qua ngón tay thứ hai
+    if (locked || pointerIdRef.current !== null) return // bỏ qua ngón tay thứ hai
     if (e.pointerType === 'mouse' && e.button !== 0) return
     e.preventDefault()
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -158,8 +178,13 @@ export function WritingCanvas({ text }: { text: string }) {
     setStrokes([])
     setResult(null)
   }
+  const check = () => {
+    const r = scoreDrawing(glyph, strokes)
+    if (isQuiz) onScore?.(r)
+    else setResult(r)
+  }
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+    if (!locked && (e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
       e.preventDefault()
       undo()
     }
@@ -168,7 +193,7 @@ export function WritingCanvas({ text }: { text: string }) {
   return (
     <div className="space-y-3" onKeyDown={onKeyDown}>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <Segmented label="Chế độ" items={MODES} value={mode} onChange={setMode} />
+        {!isQuiz && <Segmented label="Chế độ" items={MODES} value={mode} onChange={setMode} />}
         <Segmented label="Độ dày bút" items={PENS} value={pen} onChange={setPen} />
       </div>
 
@@ -186,20 +211,20 @@ export function WritingCanvas({ text }: { text: string }) {
           aria-hidden="true"
         >
           <GlyphGuides glyph={glyph} tone="accent" border={glyph.cells > 1} />
-          {mode === 'trace' && (
+          {showModel && (
             <g
               fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={6}
-              className="stroke-ink/[0.13]"
+              className={isQuiz ? 'stroke-matcha/30' : 'stroke-ink/[0.13]'}
             >
               {glyph.strokes.map((s) => (
                 <path key={s.order} d={s.d} transform={`translate(${s.offsetX} ${s.offsetY})`} />
               ))}
             </g>
           )}
-          {mode === 'trace' &&
+          {showModel &&
             glyph.strokes.map((s) => (
               <text
                 key={s.order}
@@ -217,37 +242,47 @@ export function WritingCanvas({ text }: { text: string }) {
         <canvas
           ref={canvasRef}
           role="img"
-          aria-label={`Khung tập viết chữ ${text}. Dùng chuột, ngón tay hoặc bút để viết.`}
+          aria-label={
+            isQuiz
+              ? 'Khung viết câu trả lời. Dùng chuột, ngón tay hoặc bút để viết.'
+              : `Khung tập viết chữ ${text}. Dùng chuột, ngón tay hoặc bút để viết.`
+          }
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endStroke}
           onPointerCancel={endStroke}
-          className="absolute inset-0 h-full w-full cursor-crosshair touch-none"
+          className={`absolute inset-0 h-full w-full touch-none ${locked ? '' : 'cursor-crosshair'}`}
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <button type="button" className="btn" onClick={undo} disabled={strokes.length === 0}>
-          <Icon name="undo" /> Hoàn tác
-        </button>
-        <button type="button" className="btn" onClick={clear} disabled={strokes.length === 0}>
-          <Icon name="trash" /> Xóa
-        </button>
-        <button
-          type="button"
-          className="btn-primary ml-auto"
-          onClick={() => setResult(scoreDrawing(glyph, strokes))}
-          disabled={strokes.length === 0}
-        >
-          <Icon name="sparkle" /> Chấm điểm
-        </button>
-      </div>
+      {!locked && (
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" className="btn" onClick={undo} disabled={strokes.length === 0}>
+            <Icon name="undo" /> Hoàn tác
+          </button>
+          <button type="button" className="btn" onClick={clear} disabled={strokes.length === 0}>
+            <Icon name="trash" /> Xóa
+          </button>
+          <button
+            type="button"
+            className="btn-primary ml-auto"
+            onClick={check}
+            disabled={strokes.length === 0}
+          >
+            <Icon name={isQuiz ? 'check' : 'sparkle'} /> {isQuiz ? 'Kiểm tra' : 'Chấm điểm'}
+          </button>
+        </div>
+      )}
 
-      <div aria-live="polite">{result && <ScoreCard result={result} />}</div>
-      <p className="text-xs text-muted">
-        * Chấm điểm tham khảo: chỉ so độ phủ hình dạng với chữ mẫu, chưa kiểm tra thứ tự và chiều
-        nét.
-      </p>
+      {!isQuiz && (
+        <>
+          <div aria-live="polite">{result && <ScoreCard result={result} />}</div>
+          <p className="text-xs text-muted">
+            * Chấm điểm tham khảo: chỉ so độ phủ hình dạng với chữ mẫu, chưa kiểm tra thứ tự và
+            chiều nét.
+          </p>
+        </>
+      )}
     </div>
   )
 }
