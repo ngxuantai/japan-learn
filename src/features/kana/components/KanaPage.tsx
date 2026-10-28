@@ -130,7 +130,7 @@ function EmptyDetail() {
         Chọn một chữ trong bảng để nghe cách đọc, xem thứ tự nét và tập viết.
       </p>
       <p className="mt-3 text-xs text-muted">
-        Bàn phím: phím mũi tên để di chuyển · Enter để nghe · Space để chọn
+        Bàn phím: phím mũi tên để di chuyển · Enter hoặc Space để chọn
       </p>
     </div>
   )

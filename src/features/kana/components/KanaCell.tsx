@@ -13,7 +13,6 @@ interface KanaCellProps {
   selected: boolean
   showRomaji: boolean
   registerRef: (pos: string, el: HTMLElement | null) => void
-  onPlay: (kana: Kana) => void
   onSelect: (kana: Kana) => void
 }
 
@@ -33,7 +32,7 @@ const STATUS_BORDER = {
 /**
  * Một ô chữ. Tự subscribe trạng thái học & trạng thái phát của chính nó,
  * nên khi một chữ thay đổi chỉ ô đó render lại.
- * Click: nghe + chọn. Enter: nghe. Space: chọn.
+ * Click / Enter / Space: chọn chữ. Âm thanh chỉ phát qua nút Nghe ở panel chi tiết.
  */
 export const KanaCell = memo(function KanaCell({
   kana,
@@ -42,7 +41,6 @@ export const KanaCell = memo(function KanaCell({
   selected,
   showRomaji,
   registerRef,
-  onPlay,
   onSelect,
 }: KanaCellProps) {
   const status = useKanaStatus(kana.uid)
@@ -63,17 +61,13 @@ export const KanaCell = memo(function KanaCell({
   const onClick = (e: MouseEvent<HTMLDivElement>) => {
     // e.detail === 0: click sinh ra từ bàn phím/trợ năng → ripple ở giữa ô.
     addRipple(e.currentTarget, e.detail ? e.clientX : undefined, e.detail ? e.clientY : undefined)
-    onPlay(kana)
     onSelect(kana)
   }
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault()
       addRipple(e.currentTarget)
-      onPlay(kana)
-    } else if (e.key === ' ') {
-      e.preventDefault()
       onSelect(kana)
     }
   }

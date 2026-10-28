@@ -39,7 +39,7 @@ export function KanaGrid({ script, section }: KanaGridProps) {
   const selectedUid = useKanaStore((s) => s.selectedUid)
   const select = useKanaStore((s) => s.select)
   const showRomaji = useKanaStore((s) => s.showRomaji)
-  const { sequenceKey, play, playSequence, stop } = useAudio()
+  const { sequenceKey, playSequence, stop } = useAudio()
 
   const [focus, setFocus] = useState<Pos>(() => findPos(model, selectedUid) ?? { r: 0, c: 1 })
   // Khi chữ được chọn từ nơi khác (nút trước/sau), đưa vị trí focus của lưới theo.
@@ -56,7 +56,6 @@ export function KanaGrid({ script, section }: KanaGridProps) {
     else refs.current.delete(key)
   }, [])
 
-  const onPlay = useCallback((k: Kana) => void play(k), [play])
   const onSelect = useCallback((k: Kana) => select(k.uid), [select])
 
   const cols = model.cols.length
@@ -193,7 +192,6 @@ export function KanaGrid({ script, section }: KanaGridProps) {
                     selected={kana.uid === selectedUid}
                     showRomaji={showRomaji}
                     registerRef={registerRef}
-                    onPlay={onPlay}
                     onSelect={onSelect}
                   />
                 ) : (
