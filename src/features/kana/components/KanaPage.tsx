@@ -9,7 +9,6 @@ import { Tabs } from '@/shared/ui/Tabs'
 import { useKanaProgress } from '../hooks/useKanaProgress'
 import { getSectionKana, SCRIPTS, SECTIONS } from '../lib/sections'
 import { useKanaStore } from '../store/kanaStore'
-import { AudioDemoNotice } from './AudioDemoNotice'
 import { DetailPanel } from './DetailPanel'
 import { KanaGrid } from './KanaGrid'
 
@@ -91,10 +90,6 @@ export function KanaPage() {
             className="animate-fade-up"
           >
             <KanaGrid script={script} section={section} />
-          </div>
-
-          <div className="mt-3">
-            <AudioDemoNotice />
           </div>
         </div>
       </section>

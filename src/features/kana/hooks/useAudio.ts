@@ -32,6 +32,7 @@ async function play(kana: Kana, opts: { slow?: boolean } = {}) {
 async function playSequence(list: Kana[], key: string) {
   const mine = ++token
   audioPlayer.stop()
+  audioPlayer.preload?.(list.map((k) => k.id))
   for (const kana of list) {
     if (mine !== token) return
     useAudioStore.setState({
