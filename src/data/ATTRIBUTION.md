@@ -30,6 +30,20 @@ Giấy phép này chỉ áp dụng cho dữ liệu nét vẽ, không áp dụng 
 
 ---
 
+## Âm thanh phát âm — `public/audio/*.mp3`
+
+File phát âm từng chữ được tạo bằng phần mềm tổng hợp giọng nói **VOICEVOX**
+(engine 0.25.2) với giọng **No.7** (style アナウンス), qua `scripts/build-audio.ts`.
+
+- VOICEVOX: <https://voicevox.hiroshiba.jp>
+- Điều khoản giọng No.7: <https://voiceseven.com/#j0200>
+- Theo điều khoản của VOICEVOX, nơi dùng âm thanh phải ghi credit: **`VOICEVOX:No.7`**
+
+Nếu đổi giọng (biến `VOICEVOX_SPEAKER`), phải cập nhật lại credit và kiểm tra điều khoản của
+giọng mới.
+
+---
+
 ## Dữ liệu chữ cái, mẹo nhớ, từ ví dụ
 
 `kana.ts`, `mnemonics.vi.ts`, `examples.ts` là nội dung do dự án tự biên soạn, không lấy
@@ -43,3 +57,4 @@ từ KanjiVG.
 
 > Dữ liệu nét vẽ từ [KanjiVG](https://kanjivg.tagaini.net) © Ulrich Apel,
 > theo giấy phép [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+> Phát âm: [VOICEVOX:No.7](https://voicevox.hiroshiba.jp).

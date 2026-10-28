@@ -48,6 +48,13 @@ export function App() {
           >
             CC BY-SA 3.0
           </a>
+          . Phát âm:{' '}
+          <a
+            href="https://voicevox.hiroshiba.jp"
+            className="underline underline-offset-2 hover:text-ink"
+          >
+            VOICEVOX:No.7
+          </a>
           .{' '}
           <a href={attributionUrl} className="underline underline-offset-2 hover:text-ink">
             Xem ghi nguồn đầy đủ
